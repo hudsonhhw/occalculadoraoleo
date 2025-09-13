@@ -294,6 +294,44 @@
         .total-card h3 {
             color: #f39c12;
         }
+        
+        .energy-card {
+            background: rgba(155, 89, 182, 0.2);
+            border-left: 4px solid #9b59b6;
+        }
+        
+        .energy-card h3 {
+            color: #9b59b6;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #34495e;
+        }
+        
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            background: rgba(52, 73, 94, 0.6);
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background: rgba(52, 152, 219, 0.4);
+            color: #3498db;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -304,28 +342,59 @@
         </header>
         
         <div class="description">
-            <p>Informe a quantidade desejada de combustível misto e o tempo disponível para calcular quantas bombas e refinarias são necessárias.</p>
+            <p>Selecione o modo de cálculo: por produção desejada ou por energia disponível</p>
         </div>
         
-        <div class="input-section">
-            <div>
-                <div class="input-group">
-                    <label for="quantidadeCombustivel">
-                        <span class="icon">1</span> Quantidade de combustível misto desejada:
-                    </label>
-                    <input type="number" id="quantidadeCombustivel" min="1" value="100">
-                </div>
-            </div>
-            
-            <div>
-                <div class="input-group">
-                    <label for="tempoDisponivel">
-                        <span class="icon">2</span> Tempo disponível (horas):
-                    </label>
-                    <input type="number" id="tempoDisponivel" min="1" value="24">
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab(0)">Por Produção</div>
+            <div class="tab" onclick="switchTab(1)">Por Energia</div>
+        </div>
+        
+        <div class="tab-content active" id="tab-producao">
+            <div class="input-section">
+                <div>
+                    <div class="input-group">
+                        <label for="quantidadeCombustivel">
+                            <span class="icon">1</span> Quantidade de combustível misto desejada:
+                        </label>
+                        <input type="number" id="quantidadeCombustivel" min="1" value="100">
+                    </div>
                 </div>
                 
-                <button onclick="calcular()">Calcular Produção</button>
+                <div>
+                    <div class="input-group">
+                        <label for="tempoDisponivel">
+                            <span class="icon">2</span> Tempo disponível (horas):
+                        </label>
+                        <input type="number" id="tempoDisponivel" min="1" value="24">
+                    </div>
+                    
+                    <button onclick="calcularPorProducao()">Calcular Produção</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="tab-energia">
+            <div class="input-section">
+                <div>
+                    <div class="input-group">
+                        <label for="energiaDisponivel">
+                            <span class="icon">1</span> Energia disponível (Watts):
+                        </label>
+                        <input type="number" id="energiaDisponivel" min="25" value="300">
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="input-group">
+                        <label for="tempoProducaoEnergia">
+                            <span class="icon">2</span> Tempo de produção (horas):
+                        </label>
+                        <input type="number" id="tempoProducaoEnergia" min="1" value="24">
+                    </div>
+                    
+                    <button onclick="calcularPorEnergia()">Calcular por Energia</button>
+                </div>
             </div>
         </div>
         
@@ -348,6 +417,25 @@
                 <div class="result-item">
                     <span class="result-label">Consumo total de energia:</span>
                     <span class="result-value energy-value" id="consumoEnergia">- Watts</span>
+                </div>
+            </div>
+            
+            <div class="result-card energy-card" id="resultadoEnergia">
+                <h3>Resultado por Energia</h3>
+                
+                <div class="result-item">
+                    <span class="result-label">Produção possível:</span>
+                    <span class="result-value" id="producaoPossivel">- unidades</span>
+                </div>
+                
+                <div class="result-item">
+                    <span class="result-label">Energia utilizada:</span>
+                    <span class="result-value energy-value" id="energiaUtilizada">- Watts</span>
+                </div>
+                
+                <div class="result-item">
+                    <span class="result-label">Energia disponível:</span>
+                    <span class="result-value energy-value" id="energiaDisponivelResultado">- Watts</span>
                 </div>
             </div>
             
@@ -508,6 +596,7 @@
                 <p>5. Em seguida, calcula quantas bombas são necessárias para fornecer barris suficientes para as refinarias</p>
                 <p>6. Cada bomba requer: 25 barras de aço, 20 tecidos de fibra de carbono, 20 peças refinadas, 20 peças padrão e 20 peças eletrônicas</p>
                 <p>7. Cada refinaria requer: 25 barras de bronze, 10 barras de cobre, 5 peças eletrônicas e 10 peças padrão</p>
+                <p>8. Cada bomba consome 10 Watts e cada refinaria consome 15 Watts</p>
             </div>
         </div>
         
@@ -542,38 +631,142 @@
     </div>
 
     <script>
-        function calcular() {
-            // Dados fixos do jogo
-            const bombaProducao = 1; // 1 barril
-            const bombaTempo = 5; // 5 minutos
-            const bombaEnergia = 10; // 10 Watts
+        // Dados fixos do jogo
+        const bombaProducao = 1; // 1 barril
+        const bombaTempo = 5; // 5 minutos
+        const bombaEnergia = 10; // 10 Watts
+        
+        const refinariaEntrada = 10; // 10 barris
+        const refinariaSaida = 5; // 5 combustível misto
+        const refinariaTempo = 15; // 15 minutos
+        const refinariaEnergia = 15; // 15 Watts
+        
+        // Custo de produção de uma bomba
+        const custoBomba = {
+            aco: 25,
+            fibraCarbono: 20,
+            pecaRefinada: 20,
+            pecaPadrao: 20,
+            pecaEletronica: 20
+        };
+        
+        // Custo de produção de uma refinaria
+        const custoRefinaria = {
+            bronze: 25,
+            cobre: 10,
+            pecaEletronica: 5,
+            pecaPadrao: 10
+        };
+        
+        function switchTab(tabIndex) {
+            document.querySelectorAll('.tab').forEach((tab, index) => {
+                if (index === tabIndex) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
             
-            const refinariaEntrada = 10; // 10 barris
-            const refinariaSaida = 5; // 5 combustível misto
-            const refinariaTempo = 15; // 15 minutos
-            const refinariaEnergia = 15; // 15 Watts
+            document.querySelectorAll('.tab-content').forEach((content, index) => {
+                if (index === tabIndex) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
             
-            // Custo de produção de uma bomba
-            const custoBomba = {
-                aco: 25,
-                fibraCarbono: 20,
-                pecaRefinada: 20,
-                pecaPadrao: 20,
-                pecaEletronica: 20
-            };
-            
-            // Custo de produção de uma refinaria
-            const custoRefinaria = {
-                bronze: 25,
-                cobre: 10,
-                pecaEletronica: 5,
-                pecaPadrao: 10
-            };
-            
+            // Esconder/mostrar resultados de energia conforme a aba selecionada
+            if (tabIndex === 1) {
+                document.getElementById('resultadoEnergia').style.display = 'block';
+            } else {
+                document.getElementById('resultadoEnergia').style.display = 'none';
+            }
+        }
+        
+        function calcularPorProducao() {
             // Obter valores do usuário
             const quantidadeCombustivel = parseFloat(document.getElementById('quantidadeCombustivel').value);
             const tempoDisponivel = parseFloat(document.getElementById('tempoDisponivel').value);
             
+            // Calcular produção
+            calcularProducao(quantidadeCombustivel, tempoDisponivel);
+        }
+        
+        function calcularPorEnergia() {
+            // Obter valores do usuário
+            const energiaDisponivel = parseFloat(document.getElementById('energiaDisponivel').value);
+            const tempoProducao = parseFloat(document.getElementById('tempoProducaoEnergia').value);
+            
+            // Calcular combinação ideal de bombas e refinarias
+            let melhorCombinacao = { bombas: 0, refinarias: 0, producao: 0, energia: 0 };
+            let melhorEficiencia = 0;
+            
+            // Testar diferentes combinações
+            for (let refinarias = 1; refinarias <= Math.floor(energiaDisponivel / refinariaEnergia); refinarias++) {
+                const energiaRestante = energiaDisponivel - (refinarias * refinariaEnergia);
+                const bombasPossiveis = Math.floor(energiaRestante / bombaEnergia);
+                
+                if (bombasPossiveis > 0) {
+                    // Verificar se as bombas são suficientes para as refinarias
+                    const consumoRefinariaHora = (60 / refinariaTempo) * refinariaEntrada;
+                    const barrisNecessariosHora = refinarias * consumoRefinariaHora;
+                    const producaoBombaHora = 60 / bombaTempo;
+                    
+                    if (bombasPossiveis * producaoBombaHora >= barrisNecessariosHora) {
+                        // Calcular produção possível
+                        const producaoRefinariaHora = (60 / refinariaTempo) * refinariaSaida;
+                        const producaoTotal = refinarias * producaoRefinariaHora * tempoProducao;
+                        
+                        // Calcular eficiência (produção por watt)
+                        const eficiencia = producaoTotal / (refinarias * refinariaEnergia + bombasPossiveis * bombaEnergia);
+                        
+                        if (eficiencia > melhorEficiencia) {
+                            melhorEficiencia = eficiencia;
+                            melhorCombinacao = {
+                                bombas: bombasPossiveis,
+                                refinarias: refinarias,
+                                producao: producaoTotal,
+                                energia: refinarias * refinariaEnergia + bombasPossiveis * bombaEnergia
+                            };
+                        }
+                    }
+                }
+            }
+            
+            // Exibir resultados
+            document.getElementById('refinariasNecessarias').textContent = melhorCombinacao.refinarias;
+            document.getElementById('bombasNecessarias').textContent = melhorCombinacao.bombas;
+            document.getElementById('consumoEnergia').textContent = melhorCombinacao.energia + ' Watts';
+            document.getElementById('producaoPossivel').textContent = Math.round(melhorCombinacao.producao) + ' unidades';
+            document.getElementById('energiaUtilizada').textContent = melhorCombinacao.energia + ' Watts';
+            document.getElementById('energiaDisponivelResultado').textContent = energiaDisponivel + ' Watts';
+            
+            // Calcular e exibir outros detalhes
+            const ciclosNecessarios = melhorCombinacao.producao / refinariaSaida;
+            const barrisNecessarios = ciclosNecessarios * refinariaEntrada;
+            const tempoTotalMinutos = ciclosNecessarios * refinariaTempo / melhorCombinacao.refinarias;
+            const producaoHora = melhorCombinacao.refinarias * (60 / refinariaTempo) * refinariaSaida;
+            
+            document.getElementById('ciclosProducao').textContent = Math.ceil(ciclosNecessarios);
+            document.getElementById('barrisNecessarios').textContent = Math.ceil(barrisNecessarios);
+            document.getElementById('tempoCiclo').textContent = refinariaTempo;
+            document.getElementById('producaoHora').textContent = producaoHora.toFixed(1) + ' unidades/hora';
+            
+            const horas = Math.floor(tempoTotalMinutos / 60);
+            const minutos = Math.round(tempoTotalMinutos % 60);
+            const dias = (tempoTotalMinutos / 1440).toFixed(1);
+            const ciclosHora = (60 / refinariaTempo).toFixed(1);
+            
+            document.getElementById('horas').textContent = horas;
+            document.getElementById('minutos').textContent = minutos;
+            document.getElementById('dias').textContent = dias;
+            document.getElementById('ciclosHora').textContent = ciclosHora;
+            
+            // Calcular e exibir materiais
+            calcularMateriais(melhorCombinacao.bombas, melhorCombinacao.refinarias);
+        }
+        
+        function calcularProducao(quantidadeCombustivel, tempoDisponivel) {
             // 1. Calcular quantas refinarias são necessárias para produzir a quantidade desejada no tempo disponível
             
             // Produção por refinaria por hora
@@ -599,35 +792,7 @@
             // Bombas necessárias
             const bombasNecessarias = Math.ceil(barrisNecessariosHora / producaoBombaHora);
             
-            // 3. Calcular materiais necessários para construir as bombas
-            const materiaisBombas = {
-                aco: bombasNecessarias * custoBomba.aco,
-                fibraCarbono: bombasNecessarias * custoBomba.fibraCarbono,
-                pecaRefinada: bombasNecessarias * custoBomba.pecaRefinada,
-                pecaPadrao: bombasNecessarias * custoBomba.pecaPadrao,
-                pecaEletronica: bombasNecessarias * custoBomba.pecaEletronica
-            };
-            
-            // 4. Calcular materiais necessários para construir as refinarias
-            const materiaisRefinarias = {
-                bronze: refinariasNecessarias * custoRefinaria.bronze,
-                cobre: refinariasNecessarias * custoRefinaria.cobre,
-                pecaEletronica: refinariasNecessarias * custoRefinaria.pecaEletronica,
-                pecaPadrao: refinariasNecessarias * custoRefinaria.pecaPadrao
-            };
-            
-            // 5. Calcular totais de materiais
-            const totaisMateriais = {
-                aco: materiaisBombas.aco,
-                fibraCarbono: materiaisBombas.fibraCarbono,
-                bronze: materiaisRefinarias.bronze,
-                cobre: materiaisRefinarias.cobre,
-                pecaRefinada: materiaisBombas.pecaRefinada,
-                pecaPadrao: materiaisBombas.pecaPadrao + materiaisRefinarias.pecaPadrao,
-                pecaEletronica: materiaisBombas.pecaEletronica + materiaisRefinarias.pecaEletronica
-            };
-            
-            // 6. Calcular outros valores
+            // 3. Calcular outros valores
             
             // Ciclos de produção necessários
             const ciclosNecessarios = quantidadeCombustivel / refinariaSaida;
@@ -664,6 +829,42 @@
             document.getElementById('dias').textContent = dias;
             document.getElementById('ciclosHora').textContent = ciclosHora;
             
+            // Calcular e exibir materiais
+            calcularMateriais(bombasNecessarias, refinariasNecessarias);
+            
+            // Esconder resultados de energia
+            document.getElementById('resultadoEnergia').style.display = 'none';
+        }
+        
+        function calcularMateriais(bombasNecessarias, refinariasNecessarias) {
+            // Calcular materiais necessários para construir as bombas
+            const materiaisBombas = {
+                aco: bombasNecessarias * custoBomba.aco,
+                fibraCarbono: bombasNecessarias * custoBomba.fibraCarbono,
+                pecaRefinada: bombasNecessarias * custoBomba.pecaRefinada,
+                pecaPadrao: bombasNecessarias * custoBomba.pecaPadrao,
+                pecaEletronica: bombasNecessarias * custoBomba.pecaEletronica
+            };
+            
+            // Calcular materiais necessários para construir as refinarias
+            const materiaisRefinarias = {
+                bronze: refinariasNecessarias * custoRefinaria.bronze,
+                cobre: refinariasNecessarias * custoRefinaria.cobre,
+                pecaEletronica: refinariasNecessarias * custoRefinaria.pecaEletronica,
+                pecaPadrao: refinariasNecessarias * custoRefinaria.pecaPadrao
+            };
+            
+            // Calcular totais de materiais
+            const totaisMateriais = {
+                aco: materiaisBombas.aco,
+                fibraCarbono: materiaisBombas.fibraCarbono,
+                bronze: materiaisRefinarias.bronze,
+                cobre: materiaisRefinarias.cobre,
+                pecaRefinada: materiaisBombas.pecaRefinada,
+                pecaPadrao: materiaisBombas.pecaPadrao + materiaisRefinarias.pecaPadrao,
+                pecaEletronica: materiaisBombas.pecaEletronica + materiaisRefinarias.pecaEletronica
+            };
+            
             // Exibir materiais necessários para bombas
             document.getElementById('materialAco').textContent = materiaisBombas.aco;
             document.getElementById('materialFibra').textContent = materiaisBombas.fibraCarbono;
@@ -688,11 +889,16 @@
         }
         
         // Calcular automaticamente ao carregar a página
-        window.onload = calcular;
+        window.onload = function() {
+            calcularPorProducao();
+            document.getElementById('resultadoEnergia').style.display = 'none';
+        };
         
         // Recalcular quando os valores forem alterados
-        document.getElementById('quantidadeCombustivel').addEventListener('input', calcular);
-        document.getElementById('tempoDisponivel').addEventListener('input', calcular);
+        document.getElementById('quantidadeCombustivel').addEventListener('input', calcularPorProducao);
+        document.getElementById('tempoDisponivel').addEventListener('input', calcularPorProducao);
+        document.getElementById('energiaDisponivel').addEventListener('input', calcularPorEnergia);
+        document.getElementById('tempoProducaoEnergia').addEventListener('input', calcularPorEnergia);
     </script>
 </body>
 </html>
