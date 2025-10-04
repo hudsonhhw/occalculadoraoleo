@@ -18,6 +18,8 @@ const server = http.createServer((req, res) => {
         servePoeiraPage(res);
     } else if (pathname === '/calculadora') {
         serveCalculadoraPage(res);
+    } else if (pathname === '/pecarara') {
+        servePecaRaraPage(res);
     } else {
         serveNotFound(res);
     }
@@ -141,6 +143,12 @@ function serveHomePage(res) {
                     <h2>Calculadora de Combustível</h2>
                     <p>Calcule recursos e equipamentos para produção de combustível misto</p>
                 </a>
+                
+                <a href="/pecarara" class="card">
+                    <div class="card-icon">🧪</div>
+                    <h2>Calculadora de Peças Raras</h2>
+                    <p>Calcule materiais para craftar peças raras de diferentes tipos</p>
+                </a>
             </div>
         </div>
     </body>
@@ -170,6 +178,20 @@ function serveCalculadoraPage(res) {
     fs.readFile('calculadoraoc.html', 'utf8', (err, data) => {
         if (err) {
             console.error('Erro ao ler calculadoraoc.html:', err);
+            serveNotFound(res);
+            return;
+        }
+        
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.end(data);
+    });
+}
+
+// Função para servir a página de peças raras
+function servePecaRaraPage(res) {
+    fs.readFile('pecarara.html', 'utf8', (err, data) => {
+        if (err) {
+            console.error('Erro ao ler pecarara.html:', err);
             serveNotFound(res);
             return;
         }
@@ -252,6 +274,7 @@ server.listen(PORT, HOST, () => {
     console.log(`   • http://localhost:${PORT}/ - Página inicial`);
     console.log(`   • http://localhost:${PORT}/poeira - Calculadora de Poeira Estelar`);
     console.log(`   • http://localhost:${PORT}/calculadora - Calculadora de Combustível`);
+    console.log(`   • http://localhost:${PORT}/pecarara - Calculadora de Peças Raras`);
 });
 
 // Função para obter IPs da rede
