@@ -24,7 +24,7 @@
         }
         
         .container {
-            max-width: 800px;
+            max-width: 900px;
             width: 100%;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -60,7 +60,7 @@
             background: rgba(255, 255, 255, 0.1);
             border-radius: 15px;
             padding: 25px;
-            width: 300px;
+            width: 280px;
             transition: transform 0.3s, box-shadow 0.3s;
             cursor: pointer;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -78,6 +78,10 @@
         
         .card-2 {
             border-top: 5px solid #2ecc71;
+        }
+        
+        .card-3 {
+            border-top: 5px solid #e74c3c;
         }
         
         .card-icon {
@@ -157,6 +161,13 @@
                 <h2 class="card-title">Calculadora de Produção</h2>
                 <p class="card-description">Calcule os recursos necessários para produzir Combustível Misto. Determine quantas bombas e refinarias são necessárias com base na quantidade desejada e tempo disponível.</p>
                 <a href="calculadoraoc.html" class="card-button">Abrir Calculadora</a>
+            </div>
+            
+            <div class="card card-3" onclick="redirectTo('pecarara.html')">
+                <div class="card-icon">🧪</div>
+                <h2 class="card-title">Calculadora de Peças Raras</h2>
+                <p class="card-description">Calcule os materiais necessários para craftar Peças Raras de Irídio, Berílio, Vanádio e Platina. Inclui todos os materiais base e fontes de poeira.</p>
+                <a href="pecarara.html" class="card-button">Abrir Calculadora</a>
             </div>
         </div>
         
