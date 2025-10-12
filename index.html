@@ -49,9 +49,8 @@
         }
         
         .cards-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 30px;
             margin-top: 20px;
         }
@@ -60,7 +59,6 @@
             background: rgba(255, 255, 255, 0.1);
             border-radius: 15px;
             padding: 25px;
-            width: 280px;
             transition: transform 0.3s, box-shadow 0.3s;
             cursor: pointer;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -82,6 +80,10 @@
         
         .card-3 {
             border-top: 5px solid #e74c3c;
+        }
+        
+        .card-4 {
+            border-top: 5px solid #9b59b6;
         }
         
         .card-icon {
@@ -126,8 +128,7 @@
         
         @media (max-width: 768px) {
             .cards-container {
-                flex-direction: column;
-                align-items: center;
+                grid-template-columns: 1fr;
             }
             
             .container {
@@ -164,10 +165,17 @@
             </div>
             
             <div class="card card-3" onclick="redirectTo('/pecarara')">
-                <div class="card-icon">🧪</div>
+                <div class="card-icon">🔧</div>
                 <h2 class="card-title">Calculadora de Peças Raras</h2>
                 <p class="card-description">Calcule os materiais necessários para craftar Peças Raras de Irídio, Berílio, Vanádio e Platina. Inclui todos os materiais base e fontes de poeira.</p>
                 <a href="/pecarara" class="card-button">Abrir Calculadora</a>
+            </div>
+            
+            <div class="card card-4" onclick="redirectTo('/acido')">
+                <div class="card-icon">🧪</div>
+                <h2 class="card-title">Calculadora de Ácido</h2>
+                <p class="card-description">Calcule a produção de ácido com bombas de água contaminada, filtros e barris. Otimize sua fábrica com base na potência disponível e tempo de funcionamento.</p>
+                <a href="/acido" class="card-button">Abrir Calculadora</a>
             </div>
         </div>
         
