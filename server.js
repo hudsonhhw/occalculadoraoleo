@@ -13,6 +13,7 @@ const routes = {
     '/poeira': 'poeira.html',
     '/calculadora': 'calculadoraoc.html',
     '/pecarara': 'pecarara.html'
+    '/acido': 'acido.html'
 };
 
 // Criar servidor HTTP
