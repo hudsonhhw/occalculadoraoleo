@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Produção de Ácido</title>
+    <style>
+        :root {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #3d3d3d;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --accent-blue: #3498db;
+            --accent-green: #27ae60;
+            --accent-orange: #e67e22;
+            --accent-red: #e74c3c;
+            --accent-purple: #9b59b6;
+            --accent-cyan: #1abc9c;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        .container {
+            background-color: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: var(--accent-blue);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h2, h3, h4 {
+            color: var(--text-primary);
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--bg-tertiary);
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        button {
+            background-color: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s;
+            margin-bottom: 20px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .time-presets {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .time-preset {
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--accent-blue);
+            color: var(--text-primary);
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        .time-preset:hover {
+            background-color: var(--accent-blue);
+        }
+        .time-preset.active {
+            background-color: var(--accent-blue);
+            font-weight: bold;
+        }
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: var(--bg-tertiary);
+            border-radius: 5px;
+            display: none;
+        }
+        .result-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--bg-secondary);
+        }
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        .highlight {
+            background-color: var(--accent-blue);
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .config-summary {
+            background-color: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .costs-summary {
+            background-color: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .efficiency {
+            color: var(--accent-green);
+            font-weight: bold;
+        }
+        .warning {
+            color: var(--accent-red);
+            font-weight: bold;
+        }
+        .cost-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .cost-item:nth-child(even) {
+            background-color: var(--bg-tertiary);
+        }
+        .total-cost {
+            background-color: var(--accent-blue);
+            color: white;
+            padding: 12px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .machine-count {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        .contaminated-pump {
+            background-color: var(--accent-red);
+        }
+        .dirty-pump {
+            background-color: var(--accent-orange);
+        }
+        .contaminated-filter {
+            background-color: var(--accent-purple);
+        }
+        .dirty-filter {
+            background-color: var(--accent-cyan);
+        }
+        .barrel {
+            background-color: var(--accent-green);
+        }
+        .material-section {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: var(--bg-tertiary);
+            border-radius: 5px;
+        }
+        .material-header {
+            color: var(--accent-green);
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--bg-secondary);
+        }
+        .material-cost {
+            color: var(--accent-green);
+            font-weight: bold;
+        }
+        .category-total {
+            background-color: var(--accent-purple);
+            padding: 8px;
+            border-radius: 4px;
+            margin: 5px 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Calculadora de Produção de Ácido</h1>
+        
+        <div class="input-group">
+            <label for="watts">Potência Disponível (Watts):</label>
+            <input type="number" id="watts" min="160" step="10" value="340">
+        </div>
+        
+        <div class="input-group">
+            <label for="hours">Horas de Funcionamento:</label>
+            <input type="number" id="hours" min="0.1" step="0.1" value="1">
+        </div>
+
+        <div class="time-presets">
+            <div class="time-preset" onclick="setTimePreset(1)">1 Hora</div>
+            <div class="time-preset" onclick="setTimePreset(24)">24 Horas</div>
+            <div class="time-preset" onclick="setTimePreset(168)">7 Dias</div>
+            <div class="time-preset" onclick="setTimePreset(720)">30 Dias</div>
+        </div>
+        
+        <button id="calculate">🔄 Calcular Produção</button>
+        
+        <div class="results" id="results">
+            <h2>📊 Resultados da Produção</h2>
+            
+            <div class="config-summary">
+                <h3>⚙️ Configuração do Sistema</h3>
+                <div id="config-details"></div>
+            </div>
+            
+            <div class="costs-summary">
+                <h3>💰 Custos Totais de Fabricação</h3>
+                <div id="costs-details"></div>
+            </div>
+            
+            <div class="result-item">
+                <strong>🧪 Produção de Ácido:</strong>
+                <div id="acid-production"></div>
+            </div>
+            
+            <div class="highlight">
+                <div id="summary"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Custos de fabricação
+        const machineCosts = {
+            contaminatedPump: {
+                name: "Bomba de Água Contaminada",
+                costs: {
+                    "Peça Padrão": 20,
+                    "Barra de Aço": 25,
+                    "Tecido Fibra Carbono": 20,
+                    "Peça Refinada": 20,
+                    "Peça Eletrônica": 20
+                }
+            },
+            dirtyPump: {
+                name: "Bomba de Água Suja",
+                costs: {
+                    "Peça Padrão": 20,
+                    "Barra de Aço": 25,
+                    "Tecido Fibra Carbono": 20,
+                    "Peça Refinada": 20,
+                    "Peça Eletrônica": 20
+                }
+            },
+            contaminatedFilter: {
+                name: "Filtro de Água Contaminada",
+                costs: {
+                    "Peça Eletrônica": 15,
+                    "Peça Automática": 20,
+                    "Fita Adesiva": 20,
+                    "Sucatas de Metal": 15,
+                    "Borracha": 10,
+                    "Barra de Tungstênio": 10
+                }
+            },
+            dirtyFilter: {
+                name: "Filtro de Água Suja",
+                costs: {
+                    "Peça Eletrônica": 15,
+                    "Peça Automática": 20,
+                    "Fita Adesiva": 20,
+                    "Sucatas de Metal": 15,
+                    "Borracha": 10,
+                    "Barra de Tungstênio": 10
+                }
+            },
+            barrel: {
+                name: "Barril",
+                costs: {
+                    "Madeira": 50,
+                    "Fita Adesiva": 20,
+                    "Borracha": 20,
+                    "Barra de Alumínio": 20,
+                    "Ácido": 15
+                }
+            }
+        };
+
+        // Sistema de presets de tempo
+        function setTimePreset(hours) {
+            document.getElementById('hours').value = hours;
+            document.querySelectorAll('.time-preset').forEach(preset => {
+                preset.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            document.getElementById('calculate').click();
+        }
+
+        document.getElementById('calculate').addEventListener('click', function() {
+            const watts = parseInt(document.getElementById('watts').value);
+            const hours = parseFloat(document.getElementById('hours').value);
+            
+            if (isNaN(watts) || watts < 160) {
+                alert("Potência mínima: 160W (para 2 barris)");
+                return;
+            }
+            
+            if (isNaN(hours) || hours <= 0) {
+                alert("Por favor, insira um tempo de funcionamento válido");
+                return;
+            }
+            
+            const config = calculateOptimalConfig(watts);
+            const acidPerMinute = config.barrels * 0.2;
+            const totalAcid = acidPerMinute * 60 * hours;
+            const powerUsed = config.powerUsed;
+            const remainingPower = watts - powerUsed;
+            
+            // Calcular custos detalhados
+            const totalCosts = calculateTotalCosts(config);
+            
+            // Exibir configuração
+            document.getElementById('config-details').innerHTML = `
+                <div class="machine-count contaminated-pump">
+                    <strong>💧 Bombas de Água Contaminada:</strong> ${config.contaminatedPumps}
+                </div>
+                <div class="machine-count dirty-pump">
+                    <strong>💦 Bombas de Água Suja:</strong> ${config.dirtyPumps}
+                </div>
+                <div class="machine-count contaminated-filter">
+                    <strong>⚗️ Filtros de Água Contaminada:</strong> ${config.contaminatedFilters}
+                </div>
+                <div class="machine-count dirty-filter">
+                    <strong>💧 Filtros de Água Suja:</strong> ${config.dirtyFilters}
+                </div>
+                <div class="machine-count barrel">
+                    <strong>🛢️ Barris:</strong> ${config.barrels}
+                </div>
+                <p><strong>⚡ Potência Utilizada:</strong> ${powerUsed}W</p>
+                ${remainingPower > 0 ? `<p class="efficiency">⚡ Potência não utilizada: ${remainingPower}W</p>` : ''}
+            `;
+            
+            // Exibir custos detalhados
+            let costsHTML = '<div class="material-section">';
+            
+            // Materiais das Bombas de Água Contaminada
+            const contaminatedPumpMaterials = calculateMaterialCosts('contaminatedPump', config.contaminatedPumps);
+            if (Object.keys(contaminatedPumpMaterials).length > 0) {
+                costsHTML += `<div class="material-header">💧 Materiais para Bombas de Água Contaminada (${config.contaminatedPumps} unidades):</div>`;
+                Object.keys(contaminatedPumpMaterials).sort().forEach(material => {
+                    costsHTML += `<div class="cost-item"><span>${material}:</span> <span class="material-cost">${contaminatedPumpMaterials[material]}</span></div>`;
+                });
+                costsHTML += `<div class="category-total">Total Bombas Contaminada: ${Object.values(contaminatedPumpMaterials).reduce((a, b) => a + b, 0)} itens</div>`;
+            }
+            
+            // Materiais das Bombas de Água Suja
+            const dirtyPumpMaterials = calculateMaterialCosts('dirtyPump', config.dirtyPumps);
+            if (Object.keys(dirtyPumpMaterials).length > 0) {
+                costsHTML += `<div class="material-header">💦 Materiais para Bombas de Água Suja (${config.dirtyPumps} unidades):</div>`;
+                Object.keys(dirtyPumpMaterials).sort().forEach(material => {
+                    costsHTML += `<div class="cost-item"><span>${material}:</span> <span class="material-cost">${dirtyPumpMaterials[material]}</span></div>`;
+                });
+                costsHTML += `<div class="category-total">Total Bombas Suja: ${Object.values(dirtyPumpMaterials).reduce((a, b) => a + b, 0)} itens</div>`;
+            }
+            
+            // Materiais dos Filtros de Água Contaminada
+            const contaminatedFilterMaterials = calculateMaterialCosts('contaminatedFilter', config.contaminatedFilters);
+            if (Object.keys(contaminatedFilterMaterials).length > 0) {
+                costsHTML += `<div class="material-header">⚗️ Materiais para Filtros de Água Contaminada (${config.contaminatedFilters} unidades):</div>`;
+                Object.keys(contaminatedFilterMaterials).sort().forEach(material => {
+                    costsHTML += `<div class="cost-item"><span>${material}:</span> <span class="material-cost">${contaminatedFilterMaterials[material]}</span></div>`;
+                });
+                costsHTML += `<div class="category-total">Total Filtros Contaminada: ${Object.values(contaminatedFilterMaterials).reduce((a, b) => a + b, 0)} itens</div>`;
+            }
+            
+            // Materiais dos Filtros de Água Suja
+            const dirtyFilterMaterials = calculateMaterialCosts('dirtyFilter', config.dirtyFilters);
+            if (Object.keys(dirtyFilterMaterials).length > 0) {
+                costsHTML += `<div class="material-header">💧 Materiais para Filtros de Água Suja (${config.dirtyFilters} unidades):</div>`;
+                Object.keys(dirtyFilterMaterials).sort().forEach(material => {
+                    costsHTML += `<div class="cost-item"><span>${material}:</span> <span class="material-cost">${dirtyFilterMaterials[material]}</span></div>`;
+                });
+                costsHTML += `<div class="category-total">Total Filtros Suja: ${Object.values(dirtyFilterMaterials).reduce((a, b) => a + b, 0)} itens</div>`;
+            }
+            
+            // Materiais dos Barris
+            const barrelMaterials = calculateMaterialCosts('barrel', config.barrels);
+            if (Object.keys(barrelMaterials).length > 0) {
+                costsHTML += `<div class="material-header">🛢️ Materiais para Barris (${config.barrels} unidades):</div>`;
+                Object.keys(barrelMaterials).sort().forEach(material => {
+                    costsHTML += `<div class="cost-item"><span>${material}:</span> <span class="material-cost">${barrelMaterials[material]}</span></div>`;
+                });
+                costsHTML += `<div class="category-total">Total Barris: ${Object.values(barrelMaterials).reduce((a, b) => a + b, 0)} itens</div>`;
+            }
+            
+            costsHTML += '</div>';
+            
+            // Totais consolidados
+            const allMaterials = {};
+            [contaminatedPumpMaterials, dirtyPumpMaterials, contaminatedFilterMaterials, dirtyFilterMaterials, barrelMaterials].forEach(materials => {
+                Object.keys(materials).forEach(material => {
+                    allMaterials[material] = (allMaterials[material] || 0) + materials[material];
+                });
+            });
+            
+            costsHTML += `<div class="material-section">`;
+            costsHTML += `<div class="material-header">📊 Totais Consolidados:</div>`;
+            Object.keys(allMaterials).sort().forEach(material => {
+                costsHTML += `<div class="cost-item"><span>${material}:</span> <span class="material-cost">${allMaterials[material]}</span></div>`;
+            });
+            
+            const totalItems = Object.values(allMaterials).reduce((sum, count) => sum + count, 0);
+            costsHTML += `<div class="total-cost">🎯 Total Geral: ${totalItems} itens</div>`;
+            costsHTML += `</div>`;
+            
+            document.getElementById('costs-details').innerHTML = costsHTML;
+            
+            // Formatar produção baseada no tempo
+            let productionText = '';
+            if (hours >= 24) {
+                const days = hours / 24;
+                productionText = `${totalAcid.toFixed(2)} ácido em ${days.toFixed(1)} dia${days !== 1 ? 's' : ''}`;
+            } else if (hours >= 1) {
+                productionText = `${totalAcid.toFixed(2)} ácido em ${hours} hora${hours !== 1 ? 's' : ''}`;
+            } else {
+                const minutes = hours * 60;
+                productionText = `${totalAcid.toFixed(2)} ácido em ${minutes.toFixed(0)} minuto${minutes !== 1 ? 's' : ''}`;
+            }
+            
+            document.getElementById('acid-production').innerHTML = `
+                <p>${acidPerMinute.toFixed(2)} ácido/minuto</p>
+                <p>${productionText}</p>
+            `;
+            
+            let summaryText = '';
+            if (hours >= 24) {
+                const days = hours / 24;
+                summaryText = `Com ${watts}W por ${days.toFixed(1)} dia${days !== 1 ? 's' : ''}, você produzirá <strong>${totalAcid.toFixed(2)} unidades de ácido</strong>.`;
+            } else {
+                summaryText = `Com ${watts}W por ${hours} hora${hours !== 1 ? 's' : ''}, você produzirá <strong>${totalAcid.toFixed(2)} unidades de ácido</strong>.`;
+            }
+            
+            document.getElementById('summary').innerHTML = `
+                ${summaryText}
+                <br>Serão necessários <strong>${totalItems} itens</strong> para construir todas as máquinas.
+            `;
+            
+            document.getElementById('results').style.display = 'block';
+        });
+        
+        function calculateOptimalConfig(watts) {
+            const maxMachines = Math.floor(watts / 10);
+            let bestConfig = null;
+            let bestBarrels = 0;
+            
+            // Configurações possíveis (múltiplos de 2 barris)
+            for (let barrels = 2; barrels <= 20; barrels += 2) {
+                // Filtros de água suja necessários
+                const filteredWaterNeeded = barrels * 2;
+                const dirtyFilters = Math.ceil(filteredWaterNeeded / 4);
+                
+                // Bombas de água suja necessárias (cada filtro precisa de 8 água suja/min)
+                const dirtyWaterNeeded = dirtyFilters * 8;
+                const dirtyPumps = Math.ceil(dirtyWaterNeeded / 4.8);
+                
+                // Filtros de água contaminada necessários
+                const acidImpuroNeeded = barrels * 2;
+                const contaminatedFilters = Math.ceil(acidImpuroNeeded / 4);
+                
+                // Bombas de água contaminada necessárias
+                const contaminatedWaterNeeded = contaminatedFilters * 8;
+                const contaminatedPumps = Math.ceil(contaminatedWaterNeeded / 0.8); // 0,8/min por bomba
+                
+                // Total de máquinas
+                const totalMachines = contaminatedPumps + dirtyPumps + contaminatedFilters + dirtyFilters + barrels;
+                
+                if (totalMachines <= maxMachines && barrels > bestBarrels) {
+                    bestBarrels = barrels;
+                    bestConfig = {
+                        contaminatedPumps: contaminatedPumps,
+                        dirtyPumps: dirtyPumps,
+                        contaminatedFilters: contaminatedFilters,
+                        dirtyFilters: dirtyFilters,
+                        barrels: barrels,
+                        powerUsed: totalMachines * 10
+                    };
+                }
+            }
+            
+            return bestConfig;
+        }
+        
+        function calculateTotalCosts(config) {
+            const totalCosts = {};
+            
+            function addCosts(costs, multiplier = 1) {
+                Object.keys(costs).forEach(material => {
+                    totalCosts[material] = (totalCosts[material] || 0) + (costs[material] * multiplier);
+                });
+            }
+            
+            // Bombas de Água Contaminada
+            addCosts(machineCosts.contaminatedPump.costs, config.contaminatedPumps);
+            
+            // Bombas de Água Suja
+            addCosts(machineCosts.dirtyPump.costs, config.dirtyPumps);
+            
+            // Filtros de Água Contaminada
+            addCosts(machineCosts.contaminatedFilter.costs, config.contaminatedFilters);
+            
+            // Filtros de Água Suja
+            addCosts(machineCosts.dirtyFilter.costs, config.dirtyFilters);
+            
+            // Barris
+            addCosts(machineCosts.barrel.costs, config.barrels);
+            
+            return totalCosts;
+        }
+        
+        function calculateMaterialCosts(machineType, quantity) {
+            const materials = {};
+            if (quantity > 0 && machineCosts[machineType]) {
+                Object.keys(machineCosts[machineType].costs).forEach(material => {
+                    materials[material] = machineCosts[machineType].costs[material] * quantity;
+                });
+            }
+            return materials;
+        }
+        
+        // Calcular automaticamente ao carregar
+        document.getElementById('calculate').click();
+        // Ativar preset de 1 hora por padrão
+        document.querySelector('.time-preset').classList.add('active');
+    </script>
+</body>
+</html>
