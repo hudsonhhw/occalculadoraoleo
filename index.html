@@ -62,12 +62,17 @@
             transition: transform 0.3s, box-shadow 0.3s;
             cursor: pointer;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            text-decoration: none;
+            color: inherit;
+            display: block;
         }
         
         .card:hover {
             transform: translateY(-10px);
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
             background: rgba(255, 255, 255, 0.15);
+            text-decoration: none;
+            color: inherit;
         }
         
         .card-1 {
@@ -150,33 +155,33 @@
         </div>
         
         <div class="cards-container">
-            <div class="card card-1" onclick="redirectTo('/poeira')">
+            <a href="/poeira" class="card card-1">
                 <div class="card-icon">⭐</div>
                 <h2 class="card-title">Calculadora de Poeira Estelar</h2>
                 <p class="card-description">Calcule os recursos necessários para produzir Poeira Estelar. Para cada 50 unidades de Poeira Estelar, são necessários 15 de Combustível e 25 de Minério Estelar.</p>
-                <a href="/poeira" class="card-button">Abrir Calculadora</a>
-            </div>
+                <div class="card-button">Abrir Calculadora</div>
+            </a>
             
-            <div class="card card-2" onclick="redirectTo('/calculadora')">
+            <a href="/calculadora" class="card card-2">
                 <div class="card-icon">🔋</div>
                 <h2 class="card-title">Calculadora de Produção</h2>
                 <p class="card-description">Calcule os recursos necessários para produzir Combustível Misto. Determine quantas bombas e refinarias são necessárias com base na quantidade desejada e tempo disponível.</p>
-                <a href="/calculadora" class="card-button">Abrir Calculadora</a>
-            </div>
+                <div class="card-button">Abrir Calculadora</div>
+            </a>
             
-            <div class="card card-3" onclick="redirectTo('/pecarara')">
+            <a href="/pecarara" class="card card-3">
                 <div class="card-icon">🔧</div>
                 <h2 class="card-title">Calculadora de Peças Raras</h2>
                 <p class="card-description">Calcule os materiais necessários para craftar Peças Raras de Irídio, Berílio, Vanádio e Platina. Inclui todos os materiais base e fontes de poeira.</p>
-                <a href="/pecarara" class="card-button">Abrir Calculadora</a>
-            </div>
+                <div class="card-button">Abrir Calculadora</div>
+            </a>
             
-            <div class="card card-4" onclick="redirectTo('/acido')">
+            <a href="/acido" class="card card-4">
                 <div class="card-icon">🧪</div>
                 <h2 class="card-title">Calculadora de Ácido</h2>
                 <p class="card-description">Calcule a produção de ácido com bombas de água contaminada, filtros e barris. Otimize sua fábrica com base na potência disponível e tempo de funcionamento.</p>
-                <a href="/acido" class="card-button">Abrir Calculadora</a>
-            </div>
+                <div class="card-button">Abrir Calculadora</div>
+            </a>
         </div>
         
         <div class="footer">
@@ -186,15 +191,19 @@
     </div>
 
     <script>
+        // Função para redirecionar (mantida para compatibilidade)
         function redirectTo(page) {
             window.location.href = page;
         }
         
-        // Adicionar evento de clique para os cartões
-        document.querySelectorAll('.card').forEach(card => {
-            card.addEventListener('click', function() {
-                const link = this.querySelector('a').href;
-                window.location.href = link;
+        // Adicionar eventos de clique para os botões dentro dos cards
+        document.querySelectorAll('.card-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const card = this.closest('.card');
+                if (card && card.href) {
+                    window.location.href = card.href;
+                }
             });
         });
     </script>
