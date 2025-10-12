@@ -1,145 +1,194 @@
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-const url = require('url');
-
-const PORT = 80;
-const HOST = '0.0.0.0';
-
-// Mapeamento de rotas para arquivos
-const routes = {
-    '/': 'index.html',
-    '/index': 'index.html',
-    '/poeira': 'poeira.html',
-    '/calculadora': 'calculadoraoc.html',
-    '/pecarara': 'pecarara.html',
-    '/acido': 'acido.html'
-};
-
-// Criar servidor HTTP
-const server = http.createServer((req, res) => {
-    const parsedUrl = url.parse(req.url, true);
-    const pathname = parsedUrl.pathname;
-
-    // Verificar se a rota existe no mapeamento
-    const filePath = routes[pathname];
-    
-    if (filePath) {
-        serveStaticFile(res, filePath);
-    } else {
-        serveNotFound(res);
-    }
-});
-
-// Função para servir arquivos estáticos
-function serveStaticFile(res, filePath) {
-    fs.readFile(filePath, 'utf8', (err, data) => {
-        if (err) {
-            console.error(`Erro ao ler ${filePath}:`, err);
-            serveNotFound(res);
-            return;
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadoras Once human </title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
-        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-        res.end(data);
-    });
-}
-
-// Função para página não encontrada
-function serveNotFound(res) {
-    const html = `
-    <!DOCTYPE html>
-    <html lang="pt-BR">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Página Não Encontrada</title>
-        <style>
-            body {
-                background: linear-gradient(135deg, #1a2b3c, #2c3e50);
-                color: white;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                display: flex;
-                justify-content: center;
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #ffcc00;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+            font-size: 2.5rem;
+        }
+        
+        .description {
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        .cards-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            width: 280px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .card-1 {
+            border-top: 5px solid #3498db;
+        }
+        
+        .card-2 {
+            border-top: 5px solid #2ecc71;
+        }
+        
+        .card-3 {
+            border-top: 5px solid #e74c3c;
+        }
+        
+        .card-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #ffcc00;
+        }
+        
+        .card-description {
+            font-size: 1rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .card-button {
+            display: inline-block;
+            padding: 12px 25px;
+            background: linear-gradient(to right, #ffcc00, #ff9900);
+            color: #000;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .card-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 204, 0, 0.4);
+        }
+        
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        @media (max-width: 768px) {
+            .cards-container {
+                flex-direction: column;
                 align-items: center;
-                height: 100vh;
-                margin: 0;
-                text-align: center;
             }
-            .error-container {
-                background: rgba(44, 62, 80, 0.9);
-                padding: 40px;
-                border-radius: 15px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            
+            .container {
+                padding: 25px;
             }
-            h1 { color: #e74c3c; font-size: 3rem; margin-bottom: 20px; }
-            p { margin-bottom: 20px; font-size: 1.2rem; }
-            a { color: #3498db; text-decoration: none; font-weight: bold; }
-            a:hover { text-decoration: underline; }
-        </style>
-    </head>
-    <body>
-        <div class="error-container">
-            <h1>404</h1>
-            <p>Página não encontrada</p>
-            <p><a href="/">Voltar para a página inicial</a></p>
-        </div>
-    </body>
-    </html>
-    `;
-
-    res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' });
-    res.end(html);
-}
-
-// Iniciar servidor
-server.listen(PORT, HOST, () => {
-    console.log(`🚀 Servidor rodando na porta ${PORT}`);
-    console.log(`📁 Servindo arquivos HTML do diretório: ${process.cwd()}`);
-    console.log('📋 Páginas disponíveis:');
-    Object.entries(routes).forEach(([route, file]) => {
-        console.log(`   • http://localhost:${PORT}${route} - ${file}`);
-    });
-});
-
-// Função para obter IPs da rede
-function getNetworkIPs() {
-    const os = require('os');
-    const interfaces = os.networkInterfaces();
-    const addresses = [];
-    
-    for (const name of Object.keys(interfaces)) {
-        for (const interface of interfaces[name]) {
-            if (interface.family === 'IPv4' && !interface.internal) {
-                addresses.push(interface.address);
+            
+            h1 {
+                font-size: 2rem;
             }
         }
-    }
-    
-    return addresses;
-}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Calculadoras de Once human</h1>
+        
+        <div class="description">
+            <p>Selecione uma das calculadoras:</p>
+        </div>
+        
+        <div class="cards-container">
+            <div class="card card-1" onclick="redirectTo('/poeira')">
+                <div class="card-icon">⭐</div>
+                <h2 class="card-title">Calculadora de Poeira Estelar</h2>
+                <p class="card-description">Calcule os recursos necessários para produzir Poeira Estelar. Para cada 50 unidades de Poeira Estelar, são necessários 15 de Combustível e 25 de Minério Estelar.</p>
+                <a href="/poeira" class="card-button">Abrir Calculadora</a>
+            </div>
+            
+            <div class="card card-2" onclick="redirectTo('/calculadora')">
+                <div class="card-icon">🔋</div>
+                <h2 class="card-title">Calculadora de Produção</h2>
+                <p class="card-description">Calcule os recursos necessários para produzir Combustível Misto. Determine quantas bombas e refinarias são necessárias com base na quantidade desejada e tempo disponível.</p>
+                <a href="/calculadora" class="card-button">Abrir Calculadora</a>
+            </div>
+            
+            <div class="card card-3" onclick="redirectTo('/pecarara')">
+                <div class="card-icon">🧪</div>
+                <h2 class="card-title">Calculadora de Peças Raras</h2>
+                <p class="card-description">Calcule os materiais necessários para craftar Peças Raras de Irídio, Berílio, Vanádio e Platina. Inclui todos os materiais base e fontes de poeira.</p>
+                <a href="/pecarara" class="card-button">Abrir Calculadora</a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Use estas ferramentas para optimizar sua produção!</p>
+            <p>Feito por Toshiba</p>
+        </div>
+    </div>
 
-// Mostrar IPs da rede ao iniciar
-console.log('🌐 Acessível em:');
-getNetworkIPs().forEach((ip, index) => {
-    console.log(`   ${index + 1}. http://${ip}:${PORT}`);
-});
-console.log('');
-
-// Tratamento de erros do servidor
-server.on('error', (err) => {
-    if (err.code === 'EADDRINUSE') {
-        console.error(`❌ Porta ${PORT} já está em uso. Tente usar uma porta diferente.`);
-    } else {
-        console.error('❌ Erro no servidor:', err);
-    }
-});
-
-// Graceful shutdown
-process.on('SIGINT', () => {
-    console.log('\n🛑 Encerrando servidor...');
-    server.close(() => {
-        console.log('✅ Servidor encerrado com sucesso.');
-        process.exit(0);
-    });
-});
+    <script>
+        function redirectTo(page) {
+            window.location.href = page;
+        }
+        
+        // Adicionar evento de clique para os cartões
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('click', function() {
+                const link = this.querySelector('a').href;
+                window.location.href = link;
+            });
+        });
+    </script>
+</body>
+</html>
