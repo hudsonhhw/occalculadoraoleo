@@ -12,7 +12,7 @@ const routes = {
     '/index': 'index.html',
     '/poeira': 'poeira.html',
     '/calculadora': 'calculadoraoc.html',
-    '/pecarara': 'pecarara.html'
+    '/pecarara': 'pecarara.html',
     '/acido': 'acido.html'
 };
 
